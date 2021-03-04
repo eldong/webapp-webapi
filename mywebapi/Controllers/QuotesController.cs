@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using System.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -25,7 +25,7 @@ namespace mywebapi.Controllers
             // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Demo")]
             //connString = "Server=tcp:contosobikedb.database.windows.net,1433;" + "Initial Catalog=contosodb;Persist Security Info=False;" + "User ID=dbadmin;Password=DBpass!2;MultipleActiveResultSets=False;" +
             //    "Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-            connString = _configuration.GetConnectionString("myDbConnStr");                
+            connString =  ConfigurationManager.GetConnectionString("myDbConnStr").ToString();    
 
             string queryString = "SELECT * from Quotes";
 
