@@ -37,7 +37,7 @@ namespace mywebapi.Controllers
                 {
                     while (reader.Read())
                     {
-                        Quotes.Add(reader["Quote"]  + " - " + reader["Who"]);
+                        Quotes.Add(reader["Quote"]  + " ------- " + reader["Who"]);
                     }
                 }
                 finally
