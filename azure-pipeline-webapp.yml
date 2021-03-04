@@ -1,0 +1,109 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- none
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  imageRepository: 'thursdaydemo'
+  containerRegistry: 'dockerdemoacr2.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/mywebap/Dockerfile'
+  tag: '$(Build.BuildId)'
+  
+  # Agent VM image name
+  #vmImageName: 'ubuntu-latest'
+  vmImageName: 'windows-latest'
+
+stages:
+- stage: Build_Web_App
+  displayName: Build, push, deploy Web App
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Bash@3
+      displayName: Update the WebApp Yaml for k8s
+      inputs:
+        targetType: 'inline'
+        script: 'bash -c "sed -i ''s/BuildNumber/$(Build.BuildId)/g'' frontend-webapp.yaml"'
+
+    - task: Docker@2
+      displayName: Build and push an web app to container registry
+      inputs:
+        containerRegistry: 'contosodemo-acr'
+        repository: 'webapp'
+        command: 'buildAndPush'
+        Dockerfile: '**/mywebapp/Dockerfile'
+        tags: '$(tag)'
+
+
+    - task: Kubernetes@1
+      displayName: Publish App Yaml to k8s
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'contosobikes'
+        azureResourceGroup: 'rg-contoso-bikes'
+        kubernetesCluster: 'contosobikes'
+        namespace: 'default'
+        command: 'apply'
+        useConfigurationFile: true
+        configuration: 'frontend-webapp.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+        azureSubscriptionEndpointForSecrets: 'contosobikes'
+        azureContainerRegistry: 'contosodemo.azurecr.io'
+        secretName: 'acr'
+
+
+- stage: Build_Web_Api
+  displayName: Build, push, deploy WebApi
+  jobs:  
+  - job: Build
+    displayName: Build Web Api
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Bash@3
+      displayName: Update the WebApi Yaml for k8s
+      inputs:
+        targetType: 'inline'
+        script: 'bash -c "sed -i ''s/BuildNumber/$(Build.BuildId)/g'' backend-webapi.yaml"'
+
+#      displayName: Published backend-webapi.yaml
+#      inputs:
+#        targetPath: 'backend-webapi.yaml'
+#        artifact: 'backend-webapi'
+#        publishLocation: 'pipeline'
+
+    - task: Docker@2
+      displayName: Build and push the api to container registry
+      inputs:
+        containerRegistry: 'contosodemo-acr'
+        repository: 'webapi'
+        command: 'buildAndPush'
+        Dockerfile: '**/mywebapi/Dockerfile'
+        tags: '$(tag)'
+
+    - task: Kubernetes@1
+      displayName: Publish Api Yaml to k8s
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscriptionEndpoint: 'contosobikes'
+        azureResourceGroup: 'rg-contoso-bikes'
+        kubernetesCluster: 'contosobikes'
+        namespace: 'default'
+        command: 'apply'
+        useConfigurationFile: true
+        configuration: 'backend-webapi.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+        azureSubscriptionEndpointForSecrets: 'contosobikes'
+        azureContainerRegistry: 'contosodemo.azurecr.io'
+        secretName: 'acr'

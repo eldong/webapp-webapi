@@ -1,0 +1,41 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: demowebapp
+spec:
+  selector:
+    app: demowebapp
+    tier: frontend
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demowebapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demowebapp
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: demowebapp
+        tier: frontend
+        track: stable
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+      containers:
+        - name: demowebapp
+          image: "contosodemo.azurecr.io/webapp:BuildNumber"
+          ports:
+            - name: http
+              containerPort: 80
+      imagePullSecrets:
+        - name: acr

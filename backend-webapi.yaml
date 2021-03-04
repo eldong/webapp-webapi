@@ -1,0 +1,40 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: demowebapi
+spec:
+  selector:
+    app: demowebapi
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demowebapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demowebapi
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: demowebapi
+        tier: backend
+        track: stable
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+      containers:
+        - name: demowebapi
+          image: "contosodemo.azurecr.io/webapi:BuildNumber"
+          ports:
+            - name: http
+              containerPort: 9000
+      imagePullSecrets:
+        - name: acr
