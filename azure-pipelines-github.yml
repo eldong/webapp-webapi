@@ -1,5 +1,5 @@
 # Docker
-# Build and push an image to Azure Container Registry
+# Build and push an image to Azure Container Registry and the push yaml files to kubernetes
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
@@ -10,13 +10,12 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  imageRepository: 'thursdaydemo'
-  containerRegistry: 'dockerdemoacr2.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/mywebap/Dockerfile'
+  #imageRepository: 'thursdaydemo'
+  #containerRegistry: 'dockerdemoacr2.azurecr.io'
+  #dockerfilePath: '$(Build.SourcesDirectory)/mywebap/Dockerfile'
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
-  #vmImageName: 'ubuntu-latest'
   vmImageName: 'windows-latest'
 
 stages:
@@ -75,12 +74,6 @@ stages:
       inputs:
         targetType: 'inline'
         script: 'bash -c "sed -i ''s/BuildNumber/$(Build.BuildId)/g'' backend-webapi.yaml"'
-
-#      displayName: Published backend-webapi.yaml
-#      inputs:
-#        targetPath: 'backend-webapi.yaml'
-#        artifact: 'backend-webapi'
-#        publishLocation: 'pipeline'
 
     - task: Docker@2
       displayName: Build and push the api to container registry
