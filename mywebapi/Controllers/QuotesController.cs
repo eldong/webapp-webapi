@@ -24,7 +24,7 @@ namespace mywebapi.Controllers
             // [SuppressMessage("Microsoft.Security", "CS002:SecretInNextLine", Justification="Demo")]
             //connString = "Server=tcp:contosobikedb.database.windows.net,1433;" + "Initial Catalog=contosodb;Persist Security Info=False;" + "User ID=dbadmin;Password=DBpass!2;MultipleActiveResultSets=False;" +
             //    "Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-            connString = _configuration.GetConnectionString("myDbConnString");                
+            connString = _configuration.GetConnectionString("myDbConnStr");                
 
             string queryString = "SELECT * from Quotes";
 
