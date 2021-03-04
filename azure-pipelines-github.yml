@@ -16,7 +16,7 @@ variables:
   containerRegistry: 'contosodemo.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'contosodemob0db-auth'
+  imagePullSecret: 'acr'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
